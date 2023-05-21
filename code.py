@@ -50,7 +50,7 @@ eth = WIZNET5K(spi_bus, cs, is_dhcp=True, mac=MY_MAC, hostname='aprsgate', debug
 #eth = WIZNET5K(spi_bus, cs, is_dhcp=False, mac=MY_MAC)
 #eth.ifconfig = (IP_ADDRESS, SUBNET_MASK, GATEWAY_ADDRESS, DNS_SERVER)
 
-print("Wiznet5k WebClient Test")
+print("RF.Guru Minimalistic LoraAPRSGateway")
 
 print("Chip Version:", eth.chip)
 print("MAC Address:", [hex(i) for i in eth.mac_address])
@@ -71,5 +71,8 @@ while True:
                 "APRSRawData": packet[3:],
                 "RSSI": rfm9x.last_rssi
             }
-            response = requests.post(config.url, json=json_data)
-            response.close()
+            try:
+                response = requests.post(config.url, json=json_data)
+                response.close()
+            except RuntimeError:
+                print("Lost Packet, unable post to {}".format(config.url))
