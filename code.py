@@ -2,7 +2,19 @@ import board
 import busio
 import digitalio
 import time
+import adafruit_rfm9x
+import adafruit_requests as requests
+import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
 from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
+import config
+
+# LoRa APRS frequency
+RADIO_FREQ_MHZ = 433.775
+CS = digitalio.DigitalInOut(board.GP21)
+RESET = digitalio.DigitalInOut(board.GP20)
+spi = busio.SPI(board.GP18, MOSI=board.GP19, MISO=board.GP16)
+rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000)
+rfm9x.tx_power = 5 # 5 min 23 max
 
 ##SPI0
 SPI0_RX = board.GP12
@@ -13,26 +25,18 @@ SPI0_TX = board.GP11
 ##reset
 W5x00_RSTn = board.GP14
 
-print("Wiznet5k Ping Test (no DHCP)")
+MY_MAC = (0x00, 0x16, 0x3e, 0x03, 0x04, 0x05)
 
-# Setup your network configuration below
-# random MAC, later should change this value on your vendor ID
-MY_MAC = (0x00, 0x03, 0x03, 0x03, 0x04, 0x05)
-IP_ADDRESS = (172, 16, 30, 4)
-SUBNET_MASK = (255, 255, 255, 0)
-GATEWAY_ADDRESS = (172, 16, 30, 1)
-DNS_SERVER = (8, 8, 8, 8)
-
-#led = digitalio.DigitalInOut(board.GP25)
-#led.direction = digitalio.Direction.OUTPUT
+# Fixed IP
+#IP_ADDRESS = (172, 16, 132, 4)
+#SUBNET_MASK = (255, 255, 255, 0)
+#GATEWAY_ADDRESS = (172, 16, 132, 1)
+#DNS_SERVER = (172, 16, 132, 1)
 
 ethernetRst = digitalio.DigitalInOut(W5x00_RSTn)
 ethernetRst.direction = digitalio.Direction.OUTPUT
 
-# For Adafruit Ethernet FeatherWing
 cs = digitalio.DigitalInOut(SPI0_CSn)
-# For Particle Ethernet FeatherWing
-# cs = digitalio.DigitalInOut(board.D5)
 spi_bus = busio.SPI(SPI0_SCK, MOSI=SPI0_TX, MISO=SPI0_RX)
 
 # Reset W5500 first
@@ -41,19 +45,31 @@ time.sleep(1)
 ethernetRst.value = True
 
 # Initialize ethernet interface with DHCP
-# eth = WIZNET5K(spi_bus, cs)
-# Initialize ethernet interface without DHCP
-eth = WIZNET5K(spi_bus, cs, is_dhcp=False, mac=MY_MAC)
+eth = WIZNET5K(spi_bus, cs, is_dhcp=True, mac=MY_MAC, hostname='aprsgate', debug=False)
+# Fixed IP
+#eth = WIZNET5K(spi_bus, cs, is_dhcp=False, mac=MY_MAC)
+#eth.ifconfig = (IP_ADDRESS, SUBNET_MASK, GATEWAY_ADDRESS, DNS_SERVER)
 
-# Set network configuration
-eth.ifconfig = (IP_ADDRESS, SUBNET_MASK, GATEWAY_ADDRESS, DNS_SERVER)
+print("Wiznet5k WebClient Test")
 
 print("Chip Version:", eth.chip)
 print("MAC Address:", [hex(i) for i in eth.mac_address])
 print("My IP address is:", eth.pretty_ip(eth.ip_address))
 
-while True:
-#    led.value = not led.value
-    time.sleep(1)
+# Initialize a requests object with a socket and ethernet interface
+requests.set_socket(socket, eth)
 
-print("Done!")
+while True:
+    packet = rfm9x.receive(with_header=True,timeout=10)
+    if packet is not None:
+        if packet[:3] == (b'<\xff\x01'):
+            print("Received (raw data): {0}".format(packet[3:]))
+            print("RSSI: {0}".format(rfm9x.last_rssi))
+            json_data = {
+                "Call": config.call,
+                "Station": config.station,
+                "APRSRawData": packet[3:],
+                "RSSI": rfm9x.last_rssi
+            }
+            response = requests.post(config.url, json=json_data)
+            response.close()
