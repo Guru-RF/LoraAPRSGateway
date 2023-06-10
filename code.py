@@ -75,3 +75,5 @@ while True:
                 response.close()
             except RuntimeError:
                 print("Lost Packet, unable post to {}".format(config.url))
+            except OutOfRetries:
+                print("Lost Packet, unable post to {}".format(config.url))
