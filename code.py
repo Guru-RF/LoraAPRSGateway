@@ -66,13 +66,13 @@ while True:
             print("Received (raw data): {0}".format(packet[3:]))
             print("RSSI: {0}".format(rfm9x.last_rssi))
             json_data = {
-                "Call": config.call,
-                "Station": config.station,
-                "APRSRawData": packet[3:],
-                "RSSI": rfm9x.last_rssi
+                "call": config.call,
+                "station": config.station,
+                "RawData": packet[3:],
+                "rssi": rfm9x.last_rssi
             }
             try:
-                response = requests.post(config.url, json=json_data)
+                response = requests.post(config.url + '/' + config.token, json=json_data)
                 response.close()
             except RuntimeError:
                 print("Lost Packet, unable post to {}".format(config.url))
