@@ -64,9 +64,10 @@ while True:
         if packet[:3] == (b'<\xff\x01'):
             print("Received (raw data): {0}".format(packet[3:]))
             print("RSSI: {0}".format(rfm9x.last_rssi))
+            rawdata = bytes(packet[3:]).decode('utf-8')
             json_data = {
                 "call": config.call,
-                "raw": str(packet[3:]),
+                "raw": rawdata,
                 "rssi": rfm9x.last_rssi
             }
             try:
