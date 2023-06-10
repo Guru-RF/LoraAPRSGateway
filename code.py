@@ -66,8 +66,7 @@ while True:
             print("RSSI: {0}".format(rfm9x.last_rssi))
             json_data = {
                 "call": config.call,
-                "station": config.station,
-                "RawData": packet[3:],
+                "raw": packet[3:],
                 "rssi": rfm9x.last_rssi
             }
             try:
