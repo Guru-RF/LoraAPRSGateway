@@ -1,5 +1,5 @@
 #url = "http://igate.rf.guru"
-url = "http://172.16.32.31:3000"
+url = "http://api.lora.aprs.rf.guru"
 call = "ON3URE"
 station = "05"
 token = "whatever"
