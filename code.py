@@ -73,7 +73,5 @@ while True:
             try:
                 response = requests.post(config.url + '/' + config.token, json=json_data)
                 response.close()
-            except RuntimeError:
-                print("Lost Packet, unable post to {}".format(config.url))
-            except OutOfRetries:
+            except:
                 print("Lost Packet, unable post to {}".format(config.url))
