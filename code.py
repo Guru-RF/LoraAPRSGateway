@@ -7,6 +7,7 @@ import adafruit_requests as requests
 import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
 from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
 import config
+import microcontroller
 
 # LoRa APRS frequency
 RADIO_FREQ_MHZ = 433.775
@@ -75,3 +76,5 @@ while True:
                 response.close()
             except:
                 print("Lost Packet, unable post to {}".format(config.url))
+                print("Restarting gateway...")
+                microcontroller.reset()
