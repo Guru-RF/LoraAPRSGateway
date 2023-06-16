@@ -8,6 +8,7 @@ import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
 from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
 import config
 import microcontroller
+import asyncio
 
 # LoRa APRS frequency
 RADIO_FREQ_MHZ = 433.775
@@ -59,28 +60,41 @@ print("My IP address is:", eth.pretty_ip(eth.ip_address))
 # Initialize a requests object with a socket and ethernet interface
 requests.set_socket(socket, eth)
 
-while True:
-    packet = rfm9x.receive(with_header=True,timeout=10)
-    if packet is not None:
-        if packet[:3] == (b'<\xff\x01'):
-            print("Received (raw data): {0}".format(packet[3:]))
-            print("RSSI: {0}".format(rfm9x.last_rssi))
-	    try:
-		    rawdata = bytes(packet[3:]).decode('utf-8')
-	    except:
-                print("Lost Packet, unable to decode, skipping")
-		continue
+async def httpPost(packet):
+    json_data = {
+        "call": config.call,
+        "raw": packet,
+        "rssi": rfm9x.last_rssi
+    }
 
-            json_data = {
-                "call": config.call,
-                "raw": rawdata,
-                "rssi": rfm9x.last_rssi
-            }
+    try:
+        response = requests.post(config.url + '/' + config.token, json=json_data)
+        response.close()
+    except:
+        print("Lost Packet, unable post to {}".format(config.url))
+        print("Restarting gateway...")
+        microcontroller.reset()
 
+
+async def loraRunner():
+    print("Lora Runner")
+    while True:
+        packet = rfm9x.receive(with_header=True,timeout=10)
+        if packet is not None:
+            if packet[:3] == (b'<\xff\x01'):
+                print("Received (raw data): {0}".format(packet[3:]))
+                print("RSSI: {0}".format(rfm9x.last_rssi))
             try:
-                response = requests.post(config.url + '/' + config.token, json=json_data)
-                response.close()
+                rawdata = bytes(packet[3:]).decode('utf-8')
             except:
-                print("Lost Packet, unable post to {}".format(config.url))
-                print("Restarting gateway...")
-                microcontroller.reset()
+                print("Lost Packet, unable to decode, skipping")
+                continue
+            httpPost(rawdata)
+
+
+async def main():
+   loraRunner = asyncio.create_task(loraRunner())
+   await asyncio.gather(loraRunner)
+
+
+asyncio.run(main())
