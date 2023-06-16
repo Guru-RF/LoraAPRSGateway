@@ -14,7 +14,7 @@ RADIO_FREQ_MHZ = 433.775
 CS = digitalio.DigitalInOut(board.GP21)
 RESET = digitalio.DigitalInOut(board.GP20)
 spi = busio.SPI(board.GP18, MOSI=board.GP19, MISO=board.GP16)
-rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=True)
+rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000)
 
 ##SPI0
 SPI0_RX = board.GP12
