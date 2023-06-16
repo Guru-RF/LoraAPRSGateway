@@ -61,6 +61,7 @@ async def httpPost(packet,rssi):
     }
 
     try:
+        await asyncio.sleep(40)
         response = requests.post(config.url + '/' + config.token, json=json_data)
         response.close()
         print("Posted packet {0} to {1}".format(packet,config.url))
