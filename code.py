@@ -71,7 +71,7 @@ async def httpPost(packet,rssi):
         microcontroller.reset()
 
 
-async def loraRunner():
+async def loraRunner(loop):
     # LoRa APRS frequency
     RADIO_FREQ_MHZ = 433.775
     CS = digitalio.DigitalInOut(board.GP21)
@@ -87,15 +87,15 @@ async def loraRunner():
                 print("Received (RSSI): {0} (raw data): {1}".format(rfm9x.last_rssi, packet[3:]))
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
-                    loop = asyncio.get_event_loop()
-                    await loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
+                    loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
                 except:
                     print("Lost Packet, unable to decode, skipping")
                     continue
 
 
 async def main():
-   loraR = asyncio.create_task(loraRunner())
+   loop = asyncio.get_event_loop()
+   loraR = asyncio.create_task(loraRunner(loop))
    await asyncio.gather(loraR)
 
 
