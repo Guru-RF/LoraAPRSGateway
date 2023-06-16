@@ -54,6 +54,7 @@ print("My IP address is:", eth.pretty_ip(eth.ip_address))
 requests.set_socket(socket, eth)
 
 async def httpPost(packet,rssi):
+    print("HTTP POST")
     json_data = {
         "call": config.call,
         "raw": packet,
