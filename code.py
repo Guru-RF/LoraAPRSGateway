@@ -97,7 +97,7 @@ async def loraRunner(loop):
 async def main():
    loop = asyncio.get_event_loop()
    loraR = asyncio.create_task(loraRunner(loop))
-   await asyncio.gather(loraR,loop)
+   await asyncio.gather(loraR)
 
 
 asyncio.run(main())
