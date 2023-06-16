@@ -93,8 +93,8 @@ async def loraRunner():
 
 
 async def main():
-   loraRunner = asyncio.create_task(loraRunner())
-   await asyncio.gather(loraRunner)
+   loraR = asyncio.create_task(loraRunner())
+   await asyncio.gather(loraR)
 
 
 asyncio.run(main())
