@@ -80,7 +80,7 @@ async def loraRunner():
     rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=False,crc=False)
 
     while True:
-        packet = rfm9x.receive(with_header=True,timeout=10)
+        packet = rfm9x.receive(with_header=True,timeout=60)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
                 print("Received (raw data): {0}".format(packet[3:]))
