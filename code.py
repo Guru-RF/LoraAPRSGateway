@@ -61,6 +61,7 @@ async def httpPost(packet,rssi):
     }
 
     try:
+        print("post")
         await asyncio.sleep(40)
         response = requests.post(config.url + '/' + config.token, json=json_data)
         response.close()
@@ -96,7 +97,7 @@ async def loraRunner(loop):
 async def main():
    loop = asyncio.get_event_loop()
    loraR = asyncio.create_task(loraRunner(loop))
-   await asyncio.gather(loraR)
+   await asyncio.gather(loraR,loop)
 
 
 asyncio.run(main())
