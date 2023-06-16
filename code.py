@@ -86,15 +86,14 @@ async def loraRunner():
             if packet[:3] == (b'<\xff\x01'):
                 print("Received (raw data): {0}".format(packet[3:]))
                 print("RSSI: {0}".format(rfm9x.last_rssi))
-            try:
-                rawdata = bytes(packet[3:]).decode('utf-8')
-            except:
-                print("Lost Packet, unable to decode, skipping")
-                continue
+                try:
+                    rawdata = bytes(packet[3:]).decode('utf-8')
+                except:
+                    print("Lost Packet, unable to decode, skipping")
+                    continue
 
-            print("Async HTTP")
-            loop = asyncio.get_event_loop()
-            loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
+                loop = asyncio.get_event_loop()
+                loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
 
 
 async def main():
