@@ -53,16 +53,17 @@ print("My IP address is:", eth.pretty_ip(eth.ip_address))
 # Initialize a requests object with a socket and ethernet interface
 requests.set_socket(socket, eth)
 
-async def httpPost(packet):
+async def httpPost(packet,rssi):
     json_data = {
         "call": config.call,
         "raw": packet,
-        "rssi": rfm9x.last_rssi
+        "rssi": rssi
     }
 
     try:
         response = requests.post(config.url + '/' + config.token, json=json_data)
         response.close()
+        print("Posted to the cloud (raw data): {0}".format(packet))
     except:
         print("Lost Packet, unable post to {}".format(config.url))
         print("Restarting gateway...")
@@ -89,7 +90,7 @@ async def loraRunner():
             except:
                 print("Lost Packet, unable to decode, skipping")
                 continue
-            httpPost(rawdata)
+            httpPost(rawdata,rfm9x.last_rssi)
 
 
 async def main():
