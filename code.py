@@ -21,12 +21,6 @@ W5x00_RSTn = board.GP14
 
 MY_MAC = (0x00, 0x16, 0x3e, 0x03, 0x04, 0x05)
 
-# Fixed IP
-#IP_ADDRESS = (172, 16, 132, 4)
-#SUBNET_MASK = (255, 255, 255, 0)
-#GATEWAY_ADDRESS = (172, 16, 132, 1)
-#DNS_SERVER = (172, 16, 132, 1)
-
 ethernetRst = digitalio.DigitalInOut(W5x00_RSTn)
 ethernetRst.direction = digitalio.Direction.OUTPUT
 
@@ -39,16 +33,14 @@ time.sleep(1)
 ethernetRst.value = True
 
 # Initialize ethernet interface with DHCP
-eth = WIZNET5K(spi_bus, cs, is_dhcp=True, mac=MY_MAC, hostname='aprsgate', debug=False)
-# Fixed IP
-#eth = WIZNET5K(spi_bus, cs, is_dhcp=False, mac=MY_MAC)
-#eth.ifconfig = (IP_ADDRESS, SUBNET_MASK, GATEWAY_ADDRESS, DNS_SERVER)
+eth = WIZNET5K(spi_bus, cs, is_dhcp=True, mac=MY_MAC, hostname='rf.guru-aprsgw', debug=False)
 
 print("RF.Guru Minimalistic LoraAPRSGateway")
 
 print("Chip Version:", eth.chip)
 print("MAC Address:", [hex(i) for i in eth.mac_address])
 print("My IP address is:", eth.pretty_ip(eth.ip_address))
+print("")
 
 # Initialize a requests object with a socket and ethernet interface
 requests.set_socket(socket, eth)
@@ -78,8 +70,8 @@ async def loraRunner(loop):
     spi = busio.SPI(board.GP18, MOSI=board.GP19, MISO=board.GP16)
     rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=False,crc=False)
 
+    print("Waiting for first packet ...")
     while True:
-        print("Waiting for packet")
         packet = rfm9x.receive(with_header=True,timeout=60)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
