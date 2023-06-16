@@ -10,13 +10,6 @@ import config
 import microcontroller
 import asyncio
 
-# LoRa APRS frequency
-RADIO_FREQ_MHZ = 433.775
-CS = digitalio.DigitalInOut(board.GP21)
-RESET = digitalio.DigitalInOut(board.GP20)
-spi = busio.SPI(board.GP18, MOSI=board.GP19, MISO=board.GP16)
-rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=False,crc=False)
-
 ##SPI0
 SPI0_RX = board.GP12
 SPI0_CSn = board.GP13
@@ -78,6 +71,13 @@ async def httpPost(packet):
 
 async def loraRunner():
     print("Lora Runner")
+    # LoRa APRS frequency
+    RADIO_FREQ_MHZ = 433.775
+    CS = digitalio.DigitalInOut(board.GP21)
+    RESET = digitalio.DigitalInOut(board.GP20)
+    spi = busio.SPI(board.GP18, MOSI=board.GP19, MISO=board.GP16)
+    rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=False,crc=False)
+
     while True:
         packet = rfm9x.receive(with_header=True,timeout=10)
         if packet is not None:
