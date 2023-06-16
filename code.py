@@ -14,7 +14,7 @@ RADIO_FREQ_MHZ = 433.775
 CS = digitalio.DigitalInOut(board.GP21)
 RESET = digitalio.DigitalInOut(board.GP20)
 spi = busio.SPI(board.GP18, MOSI=board.GP19, MISO=board.GP16)
-rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=True,crc=False)
+rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=False,crc=False)
 
 ##SPI0
 SPI0_RX = board.GP12
@@ -70,11 +70,13 @@ while True:
 	    except:
                 print("Lost Packet, unable to decode, skipping")
 		continue
+
             json_data = {
                 "call": config.call,
                 "raw": rawdata,
                 "rssi": rfm9x.last_rssi
             }
+
             try:
                 response = requests.post(config.url + '/' + config.token, json=json_data)
                 response.close()
