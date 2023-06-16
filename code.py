@@ -54,7 +54,6 @@ print("My IP address is:", eth.pretty_ip(eth.ip_address))
 requests.set_socket(socket, eth)
 
 async def httpPost(packet,rssi):
-    print("HTTP POST")
     json_data = {
         "call": config.call,
         "raw": packet,
@@ -81,6 +80,7 @@ async def loraRunner():
     rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=False,crc=False)
 
     while True:
+        print("Waiting for packet")
         packet = rfm9x.receive(with_header=True,timeout=60)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
@@ -88,7 +88,6 @@ async def loraRunner():
                 print("RSSI: {0}".format(rfm9x.last_rssi))
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
-                    print("ASYNC")
                     loop = asyncio.get_event_loop()
                     await loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
                 except:
