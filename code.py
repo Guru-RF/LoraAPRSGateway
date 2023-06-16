@@ -90,7 +90,8 @@ async def loraRunner():
             except:
                 print("Lost Packet, unable to decode, skipping")
                 continue
-            httpPost(rawdata,rfm9x.last_rssi)
+
+            asyncio.create_task(httpPost(rawdata,rfm9x.last_rssi))
 
 
 async def main():
