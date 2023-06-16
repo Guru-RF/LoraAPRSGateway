@@ -63,7 +63,7 @@ async def httpPost(packet,rssi):
     try:
         response = requests.post(config.url + '/' + config.token, json=json_data)
         response.close()
-        print("Posted to the cloud (raw data): {0}".format(packet))
+        print("Posted packet to {}".format(config.url))
     except:
         print("Lost Packet, unable post to {}".format(config.url))
         print("Restarting gateway...")
@@ -84,8 +84,7 @@ async def loraRunner():
         packet = rfm9x.receive(with_header=True,timeout=60)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
-                print("Received (raw data): {0}".format(packet[3:]))
-                print("RSSI: {0}".format(rfm9x.last_rssi))
+                print("Received (RSSI): {0} (raw data): {0}".format(rfm9x.last_rssi, packet[3:]))
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
                     loop = asyncio.get_event_loop()
