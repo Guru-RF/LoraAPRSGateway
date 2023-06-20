@@ -48,6 +48,11 @@ requests.set_socket(socket, eth)
 async def httpPost(packet,rssi):
     json_data = {
         "call": config.call,
+        "lat": config.lat,
+        "lon": config.lon,
+        "alt": config.alt,
+        "comment": config.comment,
+        "symbol": config.symbol,
         "raw": packet,
         "rssi": rssi
     }
