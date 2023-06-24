@@ -52,7 +52,7 @@ aprs = APRS()
 pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
 altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
 comment = config.comment + altitude
-message = f'{config.call}>APE,TCPIP*:={pos}{comment}\n'
+message = f'{config.call}>APRS:@{pos}{comment}\n'
 
 async def iGateAnnounce():
     while True:
