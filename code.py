@@ -48,7 +48,7 @@ requests.set_socket(socket, eth)
 
 async def udpPost(packet):
     id = random.randint(0, 65535)
-    WIZNET5K.socket_connect(id,"srvr.aprs-is.net", WIZNET5K.SNMR_UDP)
+    WIZNET5K.socket_connect(id,"srvr.aprs-is.net", SNMR_UDP)
     rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1" \n'
     WIZNET5K.socket_write(id, bytes(rawpacket, 'utf-8'))
     rawpacket = f'{packet}\n'
