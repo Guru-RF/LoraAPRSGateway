@@ -65,7 +65,8 @@ async def iGateAnnounce():
         freq = microcontroller.cpus[1].frequency/1000000
         rawpacket = f'{config.call}>APRS,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
         s.send(bytes(rawpacket, 'utf-8'))
-        print(f"iGateStatus {rawpacket}")
+        stamp = ntp.strftime("%Y-%m-%d %H:%M:%S")
+        print(f"{stamp}: iGateStatus {rawpacket}")
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
         altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
