@@ -55,7 +55,7 @@ async def udpPost(packet):
     s.send(bytes(rawpacket, 'utf-8'))
 #    rawpacket = f'{config.call}>APE,TCPIP*:>This is a special test\n'
 #    s.send(bytes(rawpacket, 'utf-8'))
-    rawpacket = f'{packet}'
+    rawpacket = f'{packet}\n'
     s.send(bytes(rawpacket, 'utf-8'))
     s.close()
 
