@@ -56,6 +56,7 @@ ntp = adafruit_ntp.NTP(socket)
 
 async def iGateAnnounce():
     while True:
+        now = ntp.datetime
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
         s.connect((config.aprs_host, config.aprs_port))
@@ -65,7 +66,7 @@ async def iGateAnnounce():
         freq = microcontroller.cpus[1].frequency/1000000
         rawpacket = f'{config.call}>APRS,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
         s.send(bytes(rawpacket, 'utf-8'))
-        stamp = ntp.strftime("%Y-%m-%d %H:%M:%S")
+        stamp = now.strftime("%Y-%m-%d %H:%M:%S")
         print(f"{stamp}: iGateStatus {rawpacket}")
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
