@@ -38,12 +38,16 @@ ethernetRst.value = True
 # Initialize ethernet interface with DHCP
 eth = WIZNET5K(spi_bus, cs, is_dhcp=True, mac=MY_MAC, hostname='rf.guru-aprsgw', debug=False)
 
-print("RF.Guru Minimalistic LoraAPRSGateway")
+# our version
+VERSION = "RF.Guru Minimalistic APRSGateway v0.1" 
+
+print("{VERSION}")
 
 print("Chip Version:", eth.chip)
 print("MAC Address:", [hex(i) for i in eth.mac_address])
 print("My IP address is:", eth.pretty_ip(eth.ip_address))
 print("")
+
 
 # Initialize a requests object with a socket and ethernet interface
 requests.set_socket(socket, eth)
@@ -55,9 +59,8 @@ async def iGateAnnounce():
     while True:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
-        print(f"iGateAnnounce Connecting to {config.aprs_host}:{config.aprs_port}")
         s.connect((config.aprs_host, config.aprs_port))
-        rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
+        rawpacket = f'user {config.call} pass {config.passcode} vers "{VERSION}"\n'
         s.send(bytes(rawpacket, 'utf-8'))
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
@@ -66,23 +69,22 @@ async def iGateAnnounce():
         now = ntp.datetime
         ts = aprs.makeTimestamp('z',now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
         message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
-        print(f"{message}")
         s.send(bytes(message, 'utf-8'))
         s.close()
+        print(f"iGateAnnounce {message}")
         await asyncio.sleep(15*60)
 
 
 async def udpPost(packet):
-    print("Posted packet {0} to {1}".format(packet,config.url))
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(10)
-    print(f"Connecting to {config.aprs_host}:{config.aprs_port}")
     s.connect((config.aprs_host, config.aprs_port))
-    rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
+    rawpacket = f'user {config.call} pass {config.passcode} vers "{VERSION}"\n'
     s.send(bytes(rawpacket, 'utf-8'))
     rawpacket = f'{packet}\n'
     s.send(bytes(rawpacket, 'utf-8'))
     s.close()
+    print(f"APRS TCPMessage {packet}")
     await asyncio.sleep(0)
 
 async def httpPost(packet,rssi):
@@ -102,7 +104,7 @@ async def httpPost(packet,rssi):
         response = requests.post(config.url + '/' + config.rf_guru_token, json=json_data)
         response.close()
         await asyncio.sleep(0)
-        print("Posted packet {0} to {1}".format(packet,config.url))
+        print("APRS RF.Guru REST {packet}")
     except:
         print("Lost Packet, unable post {0} to {1}".format(packet, config.url))
         print("Restarting gateway...")
@@ -122,11 +124,10 @@ async def loraRunner(loop):
         packet = rfm9x.receive(with_header=True,timeout=60)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
-                print("Received (RSSI): {0} (raw data): {1}".format(rfm9x.last_rssi, packet[3:]))
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
-                    #loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
                     loop.create_task(udpPost(rawdata))
+                    loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
                     await asyncio.sleep(0)
                 except:
                     print("Lost Packet, unable to decode, skipping")
