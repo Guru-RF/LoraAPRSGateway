@@ -59,7 +59,7 @@ async def udpPost(packet):
     #rawpacket = f'{packet}'
     #s.send(bytes(rawpacket, 'utf-8'))
     s.shutdown(0)
-	s.close()
+    s.close()
 
 async def httpPost(packet,rssi):
     json_data = {
