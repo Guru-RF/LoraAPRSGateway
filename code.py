@@ -100,13 +100,13 @@ async def httpPost(packet,rssi):
         "alt": config.altitude,
         "comment": config.comment,
         "symbol": config.symbol,
-        "token": config.rf_guru_token,
+        "token": config.token,
         "raw": packet,
         "rssi": rssi
     }
 
     try:
-        response = requests.post(config.url + '/' + config.rf_guru_token, json=json_data)
+        response = requests.post(config.url + '/' + config.token, json=json_data)
         response.close()
         await asyncio.sleep(0)
         print(f"APRS RF.Guru REST {packet}")
@@ -132,7 +132,8 @@ async def loraRunner(loop):
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
                     loop.create_task(udpPost(rawdata))
-                    loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
+                    if config.enable is True:
+                        loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
                     await asyncio.sleep(0)
                 except:
                     print("Lost Packet, unable to decode, skipping")
