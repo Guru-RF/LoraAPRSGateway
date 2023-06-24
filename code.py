@@ -2,6 +2,7 @@ import board
 import busio
 import digitalio
 import time
+import random
 import adafruit_rfm9x
 import adafruit_requests as requests
 import adafruit_wiznet5k.adafruit_wiznet5k_socket as socket
@@ -46,12 +47,13 @@ print("")
 requests.set_socket(socket, eth)
 
 async def udpPost(packet):
-    socket.connect(("srvr.aprs-is.net", 8080))
+    id = random.randint(0, 65535)
+    socket.socket_connect(id,"srvr.aprs-is.net", socket.SNMR_UDP))
     rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1" \n'
-    socket.send(bytes(rawpacket, 'utf-8'))
+    socket.socket_write(id, bytes(rawpacket, 'utf-8'))
     rawpacket = f'{packet}\n'
-    socket.send(bytes(rawpacket, 'utf-8'))
-
+    socket.socket_write(id, bytes(rawpacket, 'utf-8'))
+    socket.socket_close(id)
 
 async def httpPost(packet,rssi):
     json_data = {
