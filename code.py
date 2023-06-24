@@ -9,6 +9,7 @@ from adafruit_wiznet5k.adafruit_wiznet5k import WIZNET5K
 import config
 import microcontroller
 import asyncio
+from APRS import APRS
 
 ##SPI0
 SPI0_RX = board.GP12
@@ -45,18 +46,43 @@ print("")
 # Initialize a requests object with a socket and ethernet interface
 requests.set_socket(socket, eth)
 
+# APRS encoder
+aprs = APRS()
+
+pos = aprs.makePosition(config.latitude,config.longitude,-1,-1,config.symbol)
+altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
+comment = config.comment + altitude
+message = f'{config.call}>APE,TCPIP*:={pos}{comment}\n'
+
+async def iGateAnnounce():
+    while True:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(10)
+        print(f"Connecting to {config.aprs_host}:{config.aprs_port}")
+        s.connect((config.aprs_host, config.aprs_port))
+        await asyncio.sleep(0)
+        rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
+        s.send(bytes(rawpacket, 'utf-8'))
+        await asyncio.sleep(0)
+        s.send(bytes(message, 'utf-8'))
+        await asyncio.sleep(0)
+        s.close()
+        await asyncio.sleep(15*60)
+
+
 async def udpPost(packet):
     print("Posted packet {0} to {1}".format(packet,config.url))
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(10)
     print(f"Connecting to {config.aprs_host}:{config.aprs_port}")
     s.connect((config.aprs_host, config.aprs_port))
+    await asyncio.sleep(0)
     rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
     s.send(bytes(rawpacket, 'utf-8'))
-#    rawpacket = f'{config.call}>APE,TCPIP*:>This is a special test\n'
-#    s.send(bytes(rawpacket, 'utf-8'))
+    await asyncio.sleep(0)
     rawpacket = f'{packet}\n'
     s.send(bytes(rawpacket, 'utf-8'))
+    await asyncio.sleep(0)
     s.close()
 
 async def httpPost(packet,rssi):
@@ -73,7 +99,7 @@ async def httpPost(packet,rssi):
     }
 
     try:
-        response = requests.post(config.url + '/' + config.token, json=json_data)
+        response = requests.post(config.url + '/' + config.rf_guru_token, json=json_data)
         response.close()
         print("Posted packet {0} to {1}".format(packet,config.url))
     except:
@@ -108,8 +134,9 @@ async def loraRunner(loop):
 
 async def main():
    loop = asyncio.get_event_loop()
+   loraA = asyncio.create_task(iGateAnnounce())
    loraR = asyncio.create_task(loraRunner(loop))
-   await asyncio.gather(loraR)
+   await asyncio.gather(loraR, loraA)
 
 
 asyncio.run(main())
