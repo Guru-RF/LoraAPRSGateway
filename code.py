@@ -45,6 +45,14 @@ print("")
 # Initialize a requests object with a socket and ethernet interface
 requests.set_socket(socket, eth)
 
+async def udpPost(packet):
+    socket.connect(("srvr.aprs-is.net", 8080))
+    rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1" \n'
+    socket.send(bytes(rawpacket, 'utf-8'))
+    rawpacket = f'{packet}\n'
+    socket.send(bytes(rawpacket, 'utf-8'))
+
+
 async def httpPost(packet,rssi):
     json_data = {
         "call": config.call,
@@ -84,7 +92,8 @@ async def loraRunner(loop):
                 print("Received (RSSI): {0} (raw data): {1}".format(rfm9x.last_rssi, packet[3:]))
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
-                    loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
+                    #loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
+                    loop.create_task(udpPost(rawdata))
                     await asyncio.sleep(0)
                 except:
                     print("Lost Packet, unable to decode, skipping")
