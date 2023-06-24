@@ -78,7 +78,8 @@ async def iGateAnnounce():
         message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
         s.send(bytes(message, 'utf-8'))
         s.close()
-        print(f"iGatePossition {message}")
+        stamp = datetime.now()
+        print(f"{stamp}: iGatePossition {message}")
         await asyncio.sleep(15*60)
 
 
@@ -91,7 +92,8 @@ async def udpPost(packet):
     rawpacket = f'{packet}\n'
     s.send(bytes(rawpacket, 'utf-8'))
     s.close()
-    print(f"APRS TCPMessage {packet}")
+    stamp = datetime.now()
+    print(f"{stamp}: APRS TCPMessage {packet}")
     await asyncio.sleep(0)
 
 async def httpPost(packet,rssi):
@@ -111,7 +113,8 @@ async def httpPost(packet,rssi):
         response = requests.post(config.url + '/' + config.token, json=json_data)
         response.close()
         await asyncio.sleep(0)
-        print(f"APRS RF.Guru REST {packet}")
+        stamp = datetime.now()
+        print(f"{stamp}: APRS RF.Guru REST {packet}")
     except:
         print("Lost Packet, unable post {0} to {1}".format(packet, config.url))
         print("Restarting gateway...")
