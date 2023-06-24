@@ -78,7 +78,6 @@ async def iGateAnnounce():
         message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
         s.send(bytes(message, 'utf-8'))
         s.close()
-        stamp = datetime.now()
         print(f"{stamp}: iGatePossition {message}")
         await asyncio.sleep(15*60)
 
@@ -116,8 +115,9 @@ async def httpPost(packet,rssi):
         stamp = datetime.now()
         print(f"{stamp}: APRS RF.Guru REST {packet}")
     except:
-        print("Lost Packet, unable post {0} to {1}".format(packet, config.url))
-        print("Restarting gateway...")
+        stamp = datetime.now()
+        print("{0}: Lost Packet, unable post {1} to {2}".format(stamp, packet, config.url))
+        print(f"{stamp}: Restarting gateway...")
         microcontroller.reset()
 
 
