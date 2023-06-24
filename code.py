@@ -1,6 +1,7 @@
 import board
 import busio
 import digitalio
+import rtc
 import time
 import adafruit_rfm9x
 import adafruit_requests as requests
@@ -11,7 +12,7 @@ import microcontroller
 import asyncio
 from APRS import APRS
 import adafruit_ntp
-
+from adafruit_datetime import datetime
 
 ##SPI0
 SPI0_RX = board.GP12
@@ -53,6 +54,7 @@ requests.set_socket(socket, eth)
 
 # NTP
 ntp = adafruit_ntp.NTP(socket)
+rtc.RTC().datetime = ntp.datetime
 
 async def iGateAnnounce():
     while True:
@@ -66,13 +68,12 @@ async def iGateAnnounce():
         freq = microcontroller.cpus[1].frequency/1000000
         rawpacket = f'{config.call}>APRS,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
         s.send(bytes(rawpacket, 'utf-8'))
-        stamp = now.strftime("%Y-%m-%d %H:%M:%S")
+        stamp = datetime.now()
         print(f"{stamp}: iGateStatus {rawpacket}")
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
         altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
         comment = config.comment + altitude
-        now = ntp.datetime
         ts = aprs.makeTimestamp('z',now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
         message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
         s.send(bytes(message, 'utf-8'))
