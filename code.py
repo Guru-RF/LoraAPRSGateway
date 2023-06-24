@@ -99,7 +99,7 @@ async def httpPost(packet,rssi):
         "alt": config.altitude,
         "comment": config.comment,
         "symbol": config.symbol,
-        "token": config.token,
+        "token": config.rf_guru_token,
         "raw": packet,
         "rssi": rssi
     }
