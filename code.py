@@ -55,7 +55,7 @@ async def iGateAnnounce():
     while True:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
-        print(f"Connecting to {config.aprs_host}:{config.aprs_port}")
+        print(f"iGateAnnounce Connecting to {config.aprs_host}:{config.aprs_port}")
         s.connect((config.aprs_host, config.aprs_port))
         await asyncio.sleep(0)
         rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
