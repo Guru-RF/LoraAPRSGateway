@@ -41,7 +41,7 @@ eth = WIZNET5K(spi_bus, cs, is_dhcp=True, mac=MY_MAC, hostname='rf.guru-aprsgw',
 # our version
 VERSION = "RF.Guru Minimalistic APRSGateway v0.1" 
 
-print("{VERSION}")
+print(f"{VERSION}\n")
 
 print("Chip Version:", eth.chip)
 print("MAC Address:", [hex(i) for i in eth.mac_address])
@@ -63,8 +63,8 @@ async def iGateAnnounce():
         rawpacket = f'user {config.call} pass {config.passcode} vers "{VERSION}"\n'
         s.send(bytes(rawpacket, 'utf-8'))
         temp = microcontroller.cpus[0].temperature
-        freq = microcontroller.cpus[1].frequency
-        rawpacket = f'{config.call}>APRS,TCPIP*:>Running on RP2040 t:{temp} f:{freq}'
+        freq = microcontroller.cpus[1].frequency/1000000
+        rawpacket = f'{config.call}>APRS,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
         s.send(bytes(rawpacket, 'utf-8'))
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
@@ -108,7 +108,7 @@ async def httpPost(packet,rssi):
         response = requests.post(config.url + '/' + config.rf_guru_token, json=json_data)
         response.close()
         await asyncio.sleep(0)
-        print("APRS RF.Guru REST {packet}")
+        print(f"APRS RF.Guru REST {packet}")
     except:
         print("Lost Packet, unable post {0} to {1}".format(packet, config.url))
         print("Restarting gateway...")
