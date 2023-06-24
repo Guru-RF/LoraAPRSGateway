@@ -51,13 +51,6 @@ requests.set_socket(socket, eth)
 # NTP
 ntp = adafruit_ntp.NTP(socket)
 
-
-# APRS encoder
-aprs = APRS()
-pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
-altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
-comment = config.comment + altitude
-
 async def iGateAnnounce():
     while True:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -68,6 +61,10 @@ async def iGateAnnounce():
         rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
         s.send(bytes(rawpacket, 'utf-8'))
         await asyncio.sleep(0)
+        aprs = APRS()
+        pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
+        altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
+        comment = config.comment + altitude
         now = ntp.datetime
         ts = aprs.makeTimestamp('z',now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
         message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
