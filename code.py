@@ -10,6 +10,8 @@ import config
 import microcontroller
 import asyncio
 from APRS import APRS
+import adafruit_ntp
+
 
 ##SPI0
 SPI0_RX = board.GP12
@@ -46,9 +48,13 @@ print("")
 # Initialize a requests object with a socket and ethernet interface
 requests.set_socket(socket, eth)
 
+# NTP
+ntp = adafruit_ntp.NTP(socket)
+
+print(ntp.datetime)
+
 # APRS encoder
 aprs = APRS()
-
 pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
 altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
 comment = config.comment + altitude
