@@ -52,10 +52,12 @@ async def udpPost(packet):
     s.settimeout(10)
     print(f"Connecting to {HOST}:{PORT}")
     s.connect((HOST, PORT))
-    rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1" \n'
+    rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"'
     s.send(bytes(rawpacket, 'utf-8'))
-    rawpacket = f'{packet}\n'
+    rawpacket = f'{config.call}>APRS,TCPIP*:>This is a test'
     s.send(bytes(rawpacket, 'utf-8'))
+    #rawpacket = f'{packet}'
+    #s.send(bytes(rawpacket, 'utf-8'))
     s.close()
 
 async def httpPost(packet,rssi):
