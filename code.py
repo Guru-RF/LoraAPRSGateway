@@ -48,7 +48,7 @@ requests.set_socket(socket, eth)
 async def udpPost(packet):
     HOST = "srvr.aprs-is.net"
     PORT = 8080
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(10)
     print(f"Connecting to {HOST}:{PORT}")
     s.connect((HOST, PORT))
