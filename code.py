@@ -57,10 +57,8 @@ async def iGateAnnounce():
         s.settimeout(10)
         print(f"iGateAnnounce Connecting to {config.aprs_host}:{config.aprs_port}")
         s.connect((config.aprs_host, config.aprs_port))
-        await asyncio.sleep(0)
         rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
         s.send(bytes(rawpacket, 'utf-8'))
-        await asyncio.sleep(0)
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
         altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
@@ -70,7 +68,6 @@ async def iGateAnnounce():
         message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
         print(f"{message}")
         s.send(bytes(message, 'utf-8'))
-        await asyncio.sleep(0)
         s.close()
         await asyncio.sleep(15*60)
 
@@ -81,14 +78,12 @@ async def udpPost(packet):
     s.settimeout(10)
     print(f"Connecting to {config.aprs_host}:{config.aprs_port}")
     s.connect((config.aprs_host, config.aprs_port))
-    await asyncio.sleep(0)
     rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
     s.send(bytes(rawpacket, 'utf-8'))
-    await asyncio.sleep(0)
     rawpacket = f'{packet}\n'
     s.send(bytes(rawpacket, 'utf-8'))
-    await asyncio.sleep(0)
     s.close()
+    await asyncio.sleep(0)
 
 async def httpPost(packet,rssi):
     json_data = {
@@ -106,6 +101,7 @@ async def httpPost(packet,rssi):
     try:
         response = requests.post(config.url + '/' + config.rf_guru_token, json=json_data)
         response.close()
+        await asyncio.sleep(0)
         print("Posted packet {0} to {1}".format(packet,config.url))
     except:
         print("Lost Packet, unable post {0} to {1}".format(packet, config.url))
