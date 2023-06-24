@@ -90,9 +90,9 @@ async def udpPost(packet):
 async def httpPost(packet,rssi):
     json_data = {
         "call": config.call,
-        "lat": config.lat,
-        "lon": config.lon,
-        "alt": config.alt,
+        "lat": config.latitude,
+        "lon": config.longitude,
+        "alt": config.altitude,
         "comment": config.comment,
         "symbol": config.symbol,
         "token": config.token,
