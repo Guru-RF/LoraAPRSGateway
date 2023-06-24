@@ -66,6 +66,7 @@ async def iGateAnnounce():
         freq = microcontroller.cpus[1].frequency/1000000
         rawpacket = f'{config.call}>APRS,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
         s.send(bytes(rawpacket, 'utf-8'))
+        print(f"iGateStatus {rawpacket}")
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
         altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
@@ -75,7 +76,7 @@ async def iGateAnnounce():
         message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
         s.send(bytes(message, 'utf-8'))
         s.close()
-        print(f"iGateAnnounce {message}")
+        print(f"iGatePossition {message}")
         await asyncio.sleep(15*60)
 
 
