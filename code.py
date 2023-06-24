@@ -52,7 +52,7 @@ aprs = APRS()
 pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
 altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
 comment = config.comment + altitude
-message = f'{config.call}>APRS:@{pos}{comment}\n'
+message = f'{config.call}>APDW16,TCPIP*:@{pos}{comment}\n'
 
 async def iGateAnnounce():
     while True:
@@ -64,6 +64,7 @@ async def iGateAnnounce():
         rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1"\n'
         s.send(bytes(rawpacket, 'utf-8'))
         await asyncio.sleep(0)
+        print(f"{message}")
         s.send(bytes(message, 'utf-8'))
         await asyncio.sleep(0)
         s.close()
