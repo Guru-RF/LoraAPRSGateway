@@ -47,7 +47,7 @@ requests.set_socket(socket, eth)
 
 async def udpPost(packet):
     print("Posted packet {0} to {1}".format(packet,config.url))
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(10)
     print(f"Connecting to {config.aprs_host}:{config.aprs_port}")
     s.connect((config.aprs_host, config.aprs_port))
