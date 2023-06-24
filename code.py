@@ -62,6 +62,10 @@ async def iGateAnnounce():
         s.connect((config.aprs_host, config.aprs_port))
         rawpacket = f'user {config.call} pass {config.passcode} vers "{VERSION}"\n'
         s.send(bytes(rawpacket, 'utf-8'))
+        temp = microcontroller.cpus[0].temperature
+        freq = microcontroller.cpus[1].frequency
+        rawpacket = f'{config.call}>APRS,TCPIP*:>Running on RP2040 t:{temp} f:{freq}'
+        s.send(bytes(rawpacket, 'utf-8'))
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
         altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
