@@ -48,7 +48,6 @@ print("MAC Address:", [hex(i) for i in eth.mac_address])
 print("My IP address is:", eth.pretty_ip(eth.ip_address))
 print("")
 
-
 # Initialize a requests object with a socket and ethernet interface
 requests.set_socket(socket, eth)
 
