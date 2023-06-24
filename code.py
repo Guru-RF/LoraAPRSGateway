@@ -46,18 +46,17 @@ print("")
 requests.set_socket(socket, eth)
 
 async def udpPost(packet):
-    HOST = "srvr.aprs-is.net"
-    PORT = 8080
+    print("Posted packet {0} to {1}".format(packet,config.url))
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(10)
-    print(f"Connecting to {HOST}:{PORT}")
+    print(f"Connecting to {config.aprs_host}:{config.aprs_port}")
     s.connect((HOST, PORT))
     rawpacket = f'user {config.call} pass {config.passcode} vers "RF.Guru APRSGateway v0.1" \n'
     s.send(bytes(rawpacket, 'utf-8'))
-    rawpacket = f'{config.call}>APE,TCPIP*:>This is a test'
+#    rawpacket = f'{config.call}>APE,TCPIP*:>This is a test'
+#    s.send(bytes(rawpacket, 'utf-8'))
+    rawpacket = f'{packet}'
     s.send(bytes(rawpacket, 'utf-8'))
-    #rawpacket = f'{packet}'
-    #s.send(bytes(rawpacket, 'utf-8'))
     s.close()
 
 async def httpPost(packet,rssi):

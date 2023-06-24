@@ -1,5 +1,7 @@
 url = "http://api.lora.aprs.rf.guru"
 call = "ON3URE-5"
+aprs_host = "belgium.aprs2.net"
+aprs_port = 14580
 passcode = "23996" # https://apps.magicbug.co.uk/passcode/index.php/passcode
 lat = 50.94751508554868
 lon = 4.2427158294946175
