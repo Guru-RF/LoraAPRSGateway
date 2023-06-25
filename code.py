@@ -83,7 +83,6 @@ async def iGateAnnounce():
 
 
 async def udpPost(packet):
-    await asyncio.sleep(0)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(10)
     s.connect((config.aprs_host, config.aprs_port))
