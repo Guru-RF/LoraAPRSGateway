@@ -53,6 +53,7 @@ print("")
 requests.set_socket(socket, eth)
 
 # NTP
+time.sleep(1)
 ntp = adafruit_ntp.NTP(socket)
 rtc.RTC().datetime = ntp.datetime
 
