@@ -66,7 +66,7 @@ async def iGateAnnounce():
         s.send(bytes(rawpacket, 'utf-8'))
         temp = microcontroller.cpus[0].temperature
         freq = microcontroller.cpus[1].frequency/1000000
-        rawpacket = f'{config.call}>APRS,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
+        rawpacket = f'{config.call}>APDW16,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
         s.send(bytes(rawpacket, 'utf-8'))
         stamp = datetime.now()
         print(f"{stamp}: iGateStatus {rawpacket}")
