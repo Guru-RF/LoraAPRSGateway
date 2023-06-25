@@ -83,6 +83,7 @@ async def iGateAnnounce():
 
 
 async def udpPost(packet):
+    await asyncio.sleep(0)
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(10)
     s.connect((config.aprs_host, config.aprs_port))
@@ -96,6 +97,7 @@ async def udpPost(packet):
     await asyncio.sleep(0)
 
 async def httpPost(packet,rssi):
+    await asyncio.sleep(0)
     json_data = {
         "call": config.call,
         "lat": config.latitude,
@@ -111,9 +113,9 @@ async def httpPost(packet,rssi):
     try:
         response = requests.post(config.url + '/' + config.token, json=json_data)
         response.close()
-        await asyncio.sleep(0)
         stamp = datetime.now()
         print(f"{stamp}: APRS RF.Guru REST {packet}")
+        await asyncio.sleep(0)
     except:
         stamp = datetime.now()
         print("{0}: Lost Packet, unable post {1} to {2}".format(stamp, packet, config.url))
@@ -142,7 +144,6 @@ async def loraRunner(loop):
                     loop.create_task(udpPost(rawdata))
                     if config.enable is True:
                         loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
-                    await asyncio.sleep(0)
                 except:
                     print("Lost Packet, unable to decode, skipping")
                     continue
