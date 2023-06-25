@@ -133,7 +133,8 @@ async def loraRunner(loop):
 
     while True:
         await asyncio.sleep(0)
-        print("Waiting for lora APRS packet ...\r", end="")
+        stamp = datetime.now()
+        print(f"{stamp}: Waiting for lora APRS packet ...\r", end="")
         packet = rfm9x.receive(with_header=True,timeout=10)
         await asyncio.sleep(0)
         if packet is not None:
