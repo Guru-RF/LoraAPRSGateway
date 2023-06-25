@@ -131,16 +131,16 @@ async def loraRunner(loop):
     spi = busio.SPI(board.GP18, MOSI=board.GP19, MISO=board.GP16)
     rfm9x = adafruit_rfm9x.RFM9x(spi, CS, RESET, RADIO_FREQ_MHZ, baudrate=1000000, agc=False,crc=True)
 
-    print("Waiting for first packet ...")
     while True:
         await asyncio.sleep(0)
+        print("Waiting for lora APRS packet ...")
         packet = rfm9x.receive(with_header=True,timeout=60)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
                     stamp = datetime.now()
-                    print(f"{stamp}: loraRunner: {rawdata}")
+                    print(f"\r{stamp}: loraRunner: {rawdata}")
                     loop.create_task(udpPost(rawdata))
                     if config.enable is True:
                         loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
