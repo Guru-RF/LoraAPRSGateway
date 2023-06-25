@@ -136,7 +136,6 @@ async def loraRunner(loop):
         stamp = datetime.now()
         print(f"{stamp}: Waiting for lora APRS packet ...\r", end="")
         packet = rfm9x.receive(with_header=True,timeout=10)
-        await asyncio.sleep(0)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
                 try:
@@ -153,8 +152,8 @@ async def loraRunner(loop):
 
 async def main():
    loop = asyncio.get_event_loop()
-   loraA = asyncio.create_task(iGateAnnounce())
    loraR = asyncio.create_task(loraRunner(loop))
+   loraA = asyncio.create_task(iGateAnnounce())
    await asyncio.gather(loraR, loraA)
 
 
