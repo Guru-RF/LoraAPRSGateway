@@ -131,11 +131,14 @@ async def loraRunner(loop):
 
     print("Waiting for first packet ...")
     while True:
+        await asyncio.sleep(0)
         packet = rfm9x.receive(with_header=True,timeout=60)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
+                    stamp = datetime.now()
+                    print(f"{stamp}: loraRunner: {rawdata}")
                     loop.create_task(udpPost(rawdata))
                     if config.enable is True:
                         loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
