@@ -69,7 +69,7 @@ async def iGateAnnounce():
         rawpacket = f'{config.call}>APDW16,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
         s.send(bytes(rawpacket, 'utf-8'))
         stamp = datetime.now()
-        print(f"{stamp}: iGateStatus {rawpacket}")
+        print(f"{stamp}: iGateStatus {rawpacket}", end="")
         aprs = APRS()
         pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
         altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
@@ -78,7 +78,7 @@ async def iGateAnnounce():
         message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
         s.send(bytes(message, 'utf-8'))
         s.close()
-        print(f"{stamp}: iGatePossition {message}")
+        print(f"{stamp}: iGatePossition {message}", end="")
         await asyncio.sleep(15*60)
 
 
