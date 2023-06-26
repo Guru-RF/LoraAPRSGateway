@@ -65,7 +65,6 @@ s.connect((config.aprs_host, config.aprs_port))
 rawpacket = f'user {config.call} pass {config.passcode} vers "{VERSION}"\n'
 s.send(bytes(rawpacket, 'utf-8'))
 stamp = datetime.now()
-print(f"{stamp}: iGateStatus {rawpacket}", end="")
 aprs = APRS()
 pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
 altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
