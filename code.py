@@ -62,7 +62,7 @@ rtc.RTC().datetime = now
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.settimeout(10)
 s.connect((config.aprs_host, config.aprs_port))
-rawpacket = f'user {config.call} pass {config.passcode} vers "{VERSION}"\n'
+rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n'
 s.send(bytes(rawpacket, 'utf-8'))
 stamp = datetime.now()
 aprs = APRS()
@@ -81,7 +81,7 @@ async def iGateAnnounce():
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
         s.connect((config.aprs_host, config.aprs_port))
-        rawpacket = f'user {config.call} pass {config.passcode} vers "{VERSION}"\n'
+        rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n'
         s.send(bytes(rawpacket, 'utf-8'))
         temp = microcontroller.cpus[0].temperature
         freq = microcontroller.cpus[1].frequency/1000000
