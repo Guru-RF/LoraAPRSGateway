@@ -40,7 +40,7 @@ ethernetRst.value = True
 eth = WIZNET5K(spi_bus, cs, is_dhcp=True, mac=MY_MAC, hostname='rf.guru-aprsgw', debug=False)
 
 # our version
-VERSION = "RF.Guru Minimalistic APRSGateway v0.1" 
+VERSION = "RF.Guru_APRSGateway 0.1" 
 
 print(f"{config.call} -=- {VERSION}\n")
 
