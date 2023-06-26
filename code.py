@@ -78,6 +78,7 @@ async def iGateAnnounce():
     while True:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout(10)
+        s.connect((config.aprs_host, config.aprs_port))
         temp = microcontroller.cpus[0].temperature
         freq = microcontroller.cpus[1].frequency/1000000
         rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n{config.call}>APDW16,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
