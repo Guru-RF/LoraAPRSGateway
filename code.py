@@ -93,6 +93,8 @@ async def udpPost(packet):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(10)
     s.connect((config.aprs_host, config.aprs_port))
+    qConstruct = f",qAR,{config.call}:"
+    packet.replace(":", qConstruct, 1)
     rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n{packet}\n'
     s.send(bytes(rawpacket, 'utf-8'))
     s.close()
