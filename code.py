@@ -59,7 +59,7 @@ now = ntp.datetime
 rtc.RTC().datetime = now
 
 # SEND iGate Postition
-s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.settimeout(10)
 s.connect((config.aprs_host, config.aprs_port))
 stamp = datetime.now()
@@ -68,38 +68,47 @@ pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol
 altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
 comment = config.comment + altitude
 ts = aprs.makeTimestamp('z',now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
-message = f'user {config.call} pass {config.passcode} vers {VERSION}\n{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
+message = f'user {config.call} pass {config.passcode} vers {VERSION}\n'
 s.send(bytes(message, 'utf-8'))
-s.close()
+message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
+s.send(bytes(message, 'utf-8'))
 print(f"{stamp}: [{config.call}] iGatePossition: {message}", end="")
 
 
 async def iGateAnnounce():
+    global s
     while True:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(10)
-        s.connect((config.aprs_host, config.aprs_port))
         temp = microcontroller.cpus[0].temperature
         freq = microcontroller.cpus[1].frequency/1000000
-        rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n{config.call}>APDW16,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
-        s.send(bytes(rawpacket, 'utf-8'))
-        s.close()
+        rawpacket = f'{config.call}>APDW16,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
+        try:
+            s.send(bytes(rawpacket, 'utf-8'))
+        except:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(10)
+            s.connect((config.aprs_host, config.aprs_port))
+            rawauthpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n'
+            s.send(bytes(rawauthpacket, 'utf-8'))
+            s.send(bytes(rawpacket, 'utf-8'))
         stamp = datetime.now()
         print(f"{stamp}: [{config.call}] iGateStatus: {rawpacket}", end="")
         await asyncio.sleep(15*60)
 
 
-async def udpPost(packet):
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.settimeout(10)
-    s.connect((config.aprs_host, config.aprs_port))
-    qConstruct = f",qAR,{config.call}:"
-    qPacket = packet.replace(":", qConstruct, 1)
-    rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n{qPacket}\n'
-    s.send(bytes(rawpacket, 'utf-8'))
-    s.close()
+async def tcpPost(packet):
+    global s
+    rawpacket = f'{packet}\n'
+    try:
+        s.send(bytes(rawpacket, 'utf-8'))
+    except:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(10)
+        s.connect((config.aprs_host, config.aprs_port))
+        rawauthpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n'
+        s.send(bytes(rawauthpacket, 'utf-8'))
+        s.send(bytes(rawpacket, 'utf-8'))
     stamp = datetime.now()
-    print(f"{stamp}: [{config.call}] AprsUdpSend: {qPacket}")
+    print(f"{stamp}: [{config.call}] AprsTCPSend: {packet}")
     await asyncio.sleep(0)
 
 async def httpPost(packet,rssi):
@@ -148,7 +157,7 @@ async def loraRunner(loop):
                     rawdata = bytes(packet[3:]).decode('utf-8')
                     stamp = datetime.now()
                     print(f"\r{stamp}: [{config.call}] loraRunner: {rawdata}")
-                    loop.create_task(udpPost(rawdata))
+                    loop.create_task(tcpPost(rawdata))
                     if config.enable is True:
                         loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
                 except:
