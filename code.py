@@ -55,11 +55,30 @@ requests.set_socket(socket, eth)
 # NTP
 time.sleep(1)
 ntp = adafruit_ntp.NTP(socket)
-rtc.RTC().datetime = ntp.datetime
+now = ntp.datetime
+rtc.RTC().datetime = now
+
+# SEND iGate Postition
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(10)
+s.connect((config.aprs_host, config.aprs_port))
+rawpacket = f'user {config.call} pass {config.passcode} vers "{VERSION}"\n'
+s.send(bytes(rawpacket, 'utf-8'))
+stamp = datetime.now()
+print(f"{stamp}: iGateStatus {rawpacket}", end="")
+aprs = APRS()
+pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
+altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
+comment = config.comment + altitude
+ts = aprs.makeTimestamp('z',now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
+message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
+s.send(bytes(message, 'utf-8'))
+s.close()
+print(f"{stamp}: iGatePossition {message}", end="")
+
 
 async def iGateAnnounce():
     while True:
-        now = ntp.datetime
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
         s.connect((config.aprs_host, config.aprs_port))
@@ -71,15 +90,6 @@ async def iGateAnnounce():
         s.send(bytes(rawpacket, 'utf-8'))
         stamp = datetime.now()
         print(f"{stamp}: iGateStatus {rawpacket}", end="")
-        aprs = APRS()
-        pos = aprs.makePosition(config.latitude, config.longitude, -1, -1, config.symbol)
-        altitude = "/A={:06d}".format(int(config.altitude*3.2808399))
-        comment = config.comment + altitude
-        ts = aprs.makeTimestamp('z',now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
-        message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
-        s.send(bytes(message, 'utf-8'))
-        s.close()
-        print(f"{stamp}: iGatePossition {message}", end="")
         await asyncio.sleep(15*60)
 
 
