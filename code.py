@@ -88,6 +88,7 @@ async def iGateAnnounce():
         rawpacket = f'{config.call}>APDW16,TCPIP*:>Running on RP2040 t:{temp}C f:{freq}Mhz\n'
         s.send(bytes(rawpacket, 'utf-8'))
         stamp = datetime.now()
+        s.close()
         print(f"{stamp}: iGateStatus {rawpacket}", end="")
         await asyncio.sleep(15*60)
 
