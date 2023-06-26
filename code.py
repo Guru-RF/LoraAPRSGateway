@@ -42,7 +42,7 @@ eth = WIZNET5K(spi_bus, cs, is_dhcp=True, mac=MY_MAC, hostname='rf.guru-aprsgw',
 # our version
 VERSION = "RF.Guru Minimalistic APRSGateway v0.1" 
 
-print(f"{VERSION}\n")
+print(f"{config.call}:{VERSION}\n")
 
 print("Chip Version:", eth.chip)
 print("MAC Address:", [hex(i) for i in eth.mac_address])
@@ -73,7 +73,7 @@ ts = aprs.makeTimestamp('z',now.tm_mday,now.tm_hour,now.tm_min,now.tm_sec)
 message = f'{config.call}>APDW16,TCPIP*:@{ts}{pos}{comment}\n'
 s.send(bytes(message, 'utf-8'))
 s.close()
-print(f"{stamp}: iGatePossition: {message}", end="")
+print(f"{stamp}: {config.call}: iGatePossition: {message}", end="")
 
 
 async def iGateAnnounce():
@@ -89,7 +89,7 @@ async def iGateAnnounce():
         s.send(bytes(rawpacket, 'utf-8'))
         stamp = datetime.now()
         s.close()
-        print(f"{stamp}: iGateStatus: {rawpacket}", end="")
+        print(f"{stamp}: {config.call}: iGateStatus: {rawpacket}", end="")
         await asyncio.sleep(15*60)
 
 
@@ -103,7 +103,7 @@ async def udpPost(packet):
     s.send(bytes(rawpacket, 'utf-8'))
     s.close()
     stamp = datetime.now()
-    print(f"{stamp}: AprsTcpSend: {packet}")
+    print(f"{stamp}: {config.call}: AprsTcpSend: {packet}")
     await asyncio.sleep(0)
 
 async def httpPost(packet,rssi):
@@ -128,8 +128,8 @@ async def httpPost(packet,rssi):
         await asyncio.sleep(0)
     except:
         stamp = datetime.now()
-        print("{0}: AprsRestSend: Lost Packet, unable post {1} to {2}".format(stamp, packet, config.url))
-        print(f"{stamp}: AprsRestSend: Restarting gateway...")
+        print("{0}: {1}: AprsRestSend: Lost Packet, unable post {2} to {3}".format(stamp, config.call, packet, config.url))
+        print(f"{stamp}: {config.call}: AprsRestSend: Restarting gateway...")
         microcontroller.reset()
 
 
@@ -144,19 +144,19 @@ async def loraRunner(loop):
     while True:
         await asyncio.sleep(0)
         stamp = datetime.now()
-        print(f"{stamp}: loraRunner: Waiting for lora APRS packet ...\r", end="")
+        print(f"{stamp}: {config.call}: loraRunner: Waiting for lora APRS packet ...\r", end="")
         packet = rfm9x.receive(with_header=True,timeout=10)
         if packet is not None:
             if packet[:3] == (b'<\xff\x01'):
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
                     stamp = datetime.now()
-                    print(f"\r{stamp}: loraRunner: {rawdata}")
+                    print(f"\r{stamp}: {config.call}: loraRunner: {rawdata}")
                     loop.create_task(udpPost(rawdata))
                     if config.enable is True:
                         loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
                 except:
-                    print(f"{stamp}: loraRunner: Lost Packet, unable to decode, skipping")
+                    print(f"{stamp}: {config.call}: loraRunner: Lost Packet, unable to decode, skipping")
                     continue
 
 
