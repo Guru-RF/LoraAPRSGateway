@@ -94,12 +94,12 @@ async def udpPost(packet):
     s.settimeout(10)
     s.connect((config.aprs_host, config.aprs_port))
     qConstruct = f",qAR,{config.call}:"
-    packet.replace(":", qConstruct, 1)
-    rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n{packet}\n'
+    qPacket = packet.replace(":", qConstruct, 1)
+    rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n{qPacket}\n'
     s.send(bytes(rawpacket, 'utf-8'))
     s.close()
     stamp = datetime.now()
-    print(f"{stamp}: [{config.call}] AprsUdpSend: {packet}")
+    print(f"{stamp}: [{config.call}] AprsUdpSend: {qPacket}")
     await asyncio.sleep(0)
 
 async def httpPost(packet,rssi):
