@@ -99,7 +99,7 @@ async def udpPost(packet):
     s.send(bytes(rawpacket, 'utf-8'))
     s.close()
     stamp = datetime.now()
-    print(f"{stamp}: [{config.call}] AprsTcpSend: {packet}")
+    print(f"{stamp}: [{config.call}] AprsUdpSend: {packet}")
     await asyncio.sleep(0)
 
 async def httpPost(packet,rssi):
