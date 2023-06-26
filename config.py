@@ -1,7 +1,7 @@
 
 call = "ON3URE-5"
 aprs_host = "belgium.aprs2.net"
-aprs_port = 14580
+aprs_port = 8080
 passcode = "23996" # https://apps.magicbug.co.uk/passcode/index.php/passcode
 latitude = 51.151965
 longitude = 2.765446

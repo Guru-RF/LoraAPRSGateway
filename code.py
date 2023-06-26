@@ -89,7 +89,7 @@ async def iGateAnnounce():
 
 
 async def udpPost(packet):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(10)
     s.connect((config.aprs_host, config.aprs_port))
     rawpacket = f'user {config.call} pass {config.passcode} vers {VERSION}\n{packet}\n'
