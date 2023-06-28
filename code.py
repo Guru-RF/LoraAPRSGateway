@@ -84,6 +84,9 @@ async def iGateAnnounce():
         try:
             s.send(bytes(rawpacket, 'utf-8'))
         except:
+            stamp = datetime.now()
+            print(f"{stamp}: [{config.call}] iGateStatus: Reconnecting to ARPS {config.aprs_host} {config.aprs_port}")
+            s.close()
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(10)
             s.connect((config.aprs_host, config.aprs_port))
@@ -101,6 +104,9 @@ async def tcpPost(packet):
     try:
         s.send(bytes(rawpacket, 'utf-8'))
     except:
+        stamp = datetime.now()
+        print(f"{stamp}: [{config.call}] AprsTCPSend: Reconnecting to ARPS {config.aprs_host} {config.aprs_port}")
+        s.close()
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(10)
         s.connect((config.aprs_host, config.aprs_port))
