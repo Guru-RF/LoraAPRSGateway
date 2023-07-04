@@ -54,7 +54,7 @@ requests.set_socket(socket, eth)
 
 # NTP
 ntp = adafruit_ntp.NTP(socket)
-while not ntp.valid_time:
+while not ntp.datetime:
     time.sleep(1)
 now = ntp.datetime
 rtc.RTC().datetime = now
