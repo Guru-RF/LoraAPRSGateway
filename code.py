@@ -53,8 +53,9 @@ print("")
 requests.set_socket(socket, eth)
 
 # NTP
-time.sleep(1)
 ntp = adafruit_ntp.NTP(socket)
+while not ntp.valid_time:
+    time.sleep(1)
 now = ntp.datetime
 rtc.RTC().datetime = now
 
@@ -162,7 +163,7 @@ async def loraRunner(loop):
                 try:
                     rawdata = bytes(packet[3:]).decode('utf-8')
                     stamp = datetime.now()
-                    print(f"\r{stamp}: [{config.call}] loraRunner: {rawdata}")
+                    print(f"\r{stamp}: [{config.call}] loraRunner: RSSI:{rfm9x.last_rssi} Data:{rawdata}")
                     loop.create_task(tcpPost(rawdata))
                     if config.enable is True:
                         loop.create_task(httpPost(rawdata,rfm9x.last_rssi))
